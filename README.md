@@ -24,20 +24,21 @@ Sau đó truy cập trình duyệt tại: `http://localhost:8088`
 
 ## 🌟 CÁC TÍNH NĂNG NỔI BẬT CỦA WEBSITE
 
-1. **Tra Cứu Toàn Bộ 78+ Lệnh**:
-   - Bao quát toàn bộ 7 nhóm tính năng từ bot:
+1. **Tra Cứu Toàn Bộ 91+ Lệnh**:
+   - Bao quát toàn bộ 8 nhóm tính năng từ bot:
      - 🛠️ **Tiện Ích & Thông Tin** (`ping`, `help`, `serverinfo`, `profile`, `pf`, `avatar`, `say`, `welcome`, `welcomerole`, `setwelcome`, `setsaylog`, `setdmslog`, `setlog` — 13 lệnh)
      - 🛡️ **Quản Trị Máy Chủ** (`clear`, `kick`, `ban`, `unban`, `mute / timeout`, `doiten` — 6 lệnh)
      - 🚨 **Kiểm Duyệt AutoMod 24/7** (`automod`, `antilink`, `linkchannel`, `linkbypass`, `setruleaction`, `setautomodaction`, `setlogchannel`, `invitebypass`, `antiinvite`, `invitechannel` — 10 lệnh)
      - 💰 **Kinh Tế & Minigame** (`daily`, `coin / bal`, `blackjack`, `cf / coinflip`, `gb / gamble`, `mine / gobom`, `givecoin`, `top / bxh`, `setlevelchannel`, `levelnotify`, `levelroles`, `levelrole` — 12 lệnh)
      - 🎵 **Âm Nhạc Voice Channel** (`play`, `playtop`, `playskip`, `search`, `pause`, `resume`, `skip`, `skipto`, `previous`, `replay`, `seek`, `volume`, `loop`, `shuffle`, `queue`, `nowplaying`, `remove`, `clearqueue`, `move`, `lyrics`, `radio`, `join`, `leave`, `stop` — 24 lệnh)
      - 🎉 **Giveaway & Phát Quà** (`gws`, `gcreate`, `gend`, `greroll`, `glist` — 5 lệnh)
+     - 🎫 **Hệ Thống Ticket Hỗ Trợ** (`panel`, `close`, `claim`, `unclaim`, `add`, `remove`, `transcript`, `rename`, `setcategory`, `setrole`, `setlog`, `config`, `list` — 13 lệnh)
      - 👑 **Đặc Quyền Chủ Bot (Owner)** (`backup`, `addcoin`, `removecoin`, `setlevel`, `reload`, `sync`, `dms`, `ownerhelp` — 8 lệnh)
 
 2. **Hệ Thống Lọc & Tìm Kiếm Đa Chiều**:
    - **Tìm kiếm theo thời gian thực (Real-time Search)**: Tìm theo tên lệnh, bí danh (alias), quyền hạn hoặc mô tả.
    - **Phím tắt nhanh**: Nhấn `/` hoặc `Ctrl + K` để nhảy ngay vào thanh tìm kiếm.
-   - **Bộ lọc danh mục**: Tab chuyển đổi nhanh giữa 7 danh mục kèm số lượng lệnh thực tế.
+   - **Bộ lọc danh mục**: Tab chuyển đổi nhanh giữa 8 danh mục kèm số lượng lệnh thực tế.
    - **Bộ lọc quyền hạn**: Lọc theo Mọi người, Moderator, Manage Server, Administrator, Chủ Bot.
    - **Bộ lọc loại lệnh**: Hybrid (`/` và `.`), Slash Command (`/`), Prefix (`.`).
 

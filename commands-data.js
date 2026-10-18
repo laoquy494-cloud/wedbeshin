@@ -11,15 +11,16 @@ const BOT_CONFIG = {
   version: "2.5.0",
   python_version: "Python 3.11 / discord.py 2.x",
   uptime_mode: "24/7 Auto-Restart Watchdog & Windows Task Scheduler",
-  total_commands: 78,
+  total_commands: 91,
   categories: [
-    { id: "all", name: "Tất Cả Lệnh", icon: "✨", count: 78, color: "#5865F2" },
+    { id: "all", name: "Tất Cả Lệnh", icon: "✨", count: 91, color: "#5865F2" },
     { id: "general", name: "Tiện Ích & Thông Tin", icon: "🛠️", count: 13, color: "#3BA55C" },
     { id: "moderation", name: "Quản Trị Máy Chủ", icon: "🛡️", count: 6, color: "#FAA61A" },
     { id: "automod", name: "Kiểm Duyệt AutoMod", icon: "🚨", count: 10, color: "#ED4245" },
     { id: "economy", name: "Kinh Tế & Minigame", icon: "💰", count: 12, color: "#F1C40F" },
     { id: "music", name: "Âm Nhạc Voice", icon: "🎵", count: 24, color: "#1DB954" },
     { id: "giveaway", name: "Giveaway & Phát Quà", icon: "🎉", count: 5, color: "#EB459E" },
+    { id: "ticket", name: "Hệ Thống Ticket", icon: "🎫", count: 13, color: "#3B82F6" },
     { id: "owner", name: "Đặc Quyền Chủ Bot", icon: "👑", count: 8, color: "#9B59B6" }
   ]
 };
@@ -3183,6 +3184,383 @@ const COMMANDS_DATA = [
     parameters: [],
     examples: [
       { cmd: ".glist", desc: "Xem danh sách các giveaway đang diễn ra" }
+    ]
+  },
+
+  // =========================================================================
+  // 8. HỆ THỐNG TICKET (TICKET SYSTEM)
+  // =========================================================================
+  {
+    id: "ticket-panel",
+    name: "ticket panel",
+    category: "ticket",
+    category_name: "Hệ Thống Ticket",
+    icon: "📌",
+    type: "hybrid",
+    type_label: "Hybrid (/ và .)",
+    aliases: ["ticket setup", "ticket bangdieukhien", "ticket taopanel"],
+    badge: "Quản Trị",
+    description: "Gửi bảng điều khiển mở Ticket kèm menu chọn chủ đề và nút tương tác vĩnh viễn.",
+    detailed_desc: "Tạo và gửi bảng điều khiển tương tác trực quan (Embed + Dropdown menu + Button) vào kênh chỉ định. Người dùng chỉ cần chọn chủ đề cần hỗ trợ là bot sẽ tự động tạo kênh riêng tư và phân quyền bảo mật.",
+    prefix_syntax: ".ticket panel [#kênh]",
+    slash_syntax: "/ticket panel [channel:#kênh]",
+    permissions: ["Manage Guild (Quản Lý Máy Chủ)"],
+    perm_level: "admin",
+    conditions: [
+      "Yêu cầu quyền Quản lý máy chủ (Manage Server) hoặc Administrator",
+      "Bot cần có quyền Manage Channels để tạo kênh riêng tư cho người dùng",
+      "Bảng điều khiển hoạt động vĩnh viễn (Persistent View) ngay cả khi khởi động lại bot"
+    ],
+    parameters: [
+      { name: "channel", type: "channel", required: false, desc: "Kênh văn bản muốn đặt bảng tạo ticket (mặc định là kênh hiện tại)" }
+    ],
+    examples: [
+      { cmd: ".ticket panel", desc: "Gửi bảng tạo ticket ngay tại kênh hiện tại" },
+      { cmd: ".ticket panel #ho-tro", desc: "Gửi bảng tạo ticket vào kênh #ho-tro" },
+      { cmd: "/ticket panel channel:#ticket", desc: "Gửi bảng ticket qua Slash Command" }
+    ],
+    embed_preview: {
+      title: "🎫 TRUNG TÂM HỖ TRỢ & GIẢI ĐÁP",
+      description: "Chào mừng bạn đến với hệ thống hỗ trợ chính thức!\nVui lòng chọn danh mục tương ứng bên dưới để tạo phiếu hỗ trợ riêng tư.",
+      color: "#5865F2",
+      fields: [
+        { name: "🛠️ Hỗ Trợ Kỹ Thuật", value: "Lỗi bot, cấu hình bot, tính năng hệ thống." },
+        { name: "❓ Hỏi Đáp & Tư Vấn", value: "Giải đáp câu hỏi chung về server." },
+        { name: "🚨 Tố Cáo & Khiếu Nại", value: "Báo cáo vi phạm, gian lận, phá hoại." },
+        { name: "💎 Giao Dịch & Nạp Tiền", value: "Trao đổi xu, nạp vật phẩm, donate." }
+      ],
+      footer: "Ticket System • Nhấp chọn danh mục bên dưới"
+    }
+  },
+  {
+    id: "ticket-close",
+    name: "ticket close",
+    category: "ticket",
+    category_name: "Hệ Thống Ticket",
+    icon: "🔒",
+    type: "hybrid",
+    type_label: "Hybrid (/ và .)",
+    aliases: ["ticket dong", "ticket dongticket"],
+    badge: "Cốt Lõi",
+    description: "Đóng phiếu hỗ trợ hiện tại, tự động xuất file HTML Transcript và xóa kênh an toàn sau 5s.",
+    detailed_desc: "Đóng ticket đang mở, ghi nhận lý do đóng, kết xuất toàn bộ lịch sử trò chuyện sang file HTML chuẩn giao diện Discord Dark Mode, gửi lưu trữ vào kênh Log và nhắn tin riêng (DM) cho người tạo ticket.",
+    prefix_syntax: ".ticket close [lý do]",
+    slash_syntax: "/ticket close [reason:lý do]",
+    permissions: ["Chủ Ticket hoặc Support Staff / Admin"],
+    perm_level: "everyone",
+    conditions: [
+      "Chỉ thực hiện được bên trong một kênh Ticket hợp lệ",
+      "Người gọi lệnh phải là người tạo ticket đó hoặc nhân viên hỗ trợ / Quản trị viên",
+      "Kênh sẽ đếm ngược 5 giây trước khi xóa để mọi người kịp theo dõi"
+    ],
+    parameters: [
+      { name: "reason", type: "string", required: false, desc: "Lý do đóng ticket (mặc định: Đã giải quyết xong)" }
+    ],
+    examples: [
+      { cmd: ".ticket close", desc: "Đóng ticket với lý do mặc định" },
+      { cmd: ".ticket close Đã giải quyết xong lỗi", desc: "Đóng ticket kèm lý do cụ thể" },
+      { cmd: "/ticket close reason:Thành viên không còn thắc mắc", desc: "Đóng qua Slash Command" }
+    ],
+    embed_preview: {
+      title: "⚠️ Đang Đóng Ticket...",
+      description: "Phiếu hỗ trợ sẽ bị đóng và xóa sau **5 giây**.\n👤 **Người đóng:** Shin\n📝 **Lý do:** `Đã giải quyết xong`\n📜 Đang tiến hành tạo và lưu trữ bản ghi trò chuyện (HTML Transcript)...",
+      color: "#FEE75C"
+    }
+  },
+  {
+    id: "ticket-claim",
+    name: "ticket claim",
+    category: "ticket",
+    category_name: "Hệ Thống Ticket",
+    icon: "✋",
+    type: "hybrid",
+    type_label: "Hybrid (/ và .)",
+    aliases: ["ticket nhan", "ticket tiepnhan"],
+    badge: "Staff",
+    description: "Nhân viên hỗ trợ tiếp nhận xử lý phiếu ticket, cập nhật chủ đề kênh và trạng thái xử lý.",
+    detailed_desc: "Đánh dấu ticket đã được một nhân viên hỗ trợ cụ thể tiếp nhận. Bot sẽ cập nhật Topic của kênh, thông báo công khai cho người mở ticket biết ai đang hỗ trợ mình.",
+    prefix_syntax: ".ticket claim",
+    slash_syntax: "/ticket claim",
+    permissions: ["Support Staff hoặc Manage Guild"],
+    perm_level: "mod",
+    conditions: [
+      "Chỉ thực hiện được bên trong kênh Ticket",
+      "Yêu cầu vai trò Support Role đã cấu hình hoặc quyền Administrator"
+    ],
+    parameters: [],
+    examples: [
+      { cmd: ".ticket claim", desc: "Tiếp nhận xử lý ticket hiện tại" },
+      { cmd: "/ticket claim", desc: "Nhận ticket bằng Slash Command" }
+    ],
+    embed_preview: {
+      title: "✅ Tiếp Nhận Xử Lý",
+      description: "🛡️ **Shin (Staff)** đã tiếp nhận xử lý phiếu hỗ trợ này!\n*Nhân viên sẽ trực tiếp trao đổi và hỗ trợ bạn ngay tại đây.*",
+      color: "#57F287"
+    }
+  },
+  {
+    id: "ticket-unclaim",
+    name: "ticket unclaim",
+    category: "ticket",
+    category_name: "Hệ Thống Ticket",
+    icon: "🔄",
+    type: "hybrid",
+    type_label: "Hybrid (/ và .)",
+    aliases: ["ticket huynhan", "ticket bonhan"],
+    badge: "Staff",
+    description: "Hủy tiếp nhận xử lý ticket để nhân viên hỗ trợ khác có thể nhận thay.",
+    detailed_desc: "Chuyển trạng thái ticket từ Đã Nhận về Đang Chờ, khôi phục Topic ban đầu để các nhân viên hỗ trợ khác trong đội ngũ tiếp tục xử lý.",
+    prefix_syntax: ".ticket unclaim",
+    slash_syntax: "/ticket unclaim",
+    permissions: ["Support Staff hoặc Manage Guild"],
+    perm_level: "mod",
+    conditions: [
+      "Chỉ người đang nhận ticket hoặc Admin mới có quyền hủy tiếp nhận"
+    ],
+    parameters: [],
+    examples: [
+      { cmd: ".ticket unclaim", desc: "Hủy tiếp nhận ticket hiện tại" }
+    ]
+  },
+  {
+    id: "ticket-add",
+    name: "ticket add",
+    category: "ticket",
+    category_name: "Hệ Thống Ticket",
+    icon: "➕",
+    type: "hybrid",
+    type_label: "Hybrid (/ và .)",
+    aliases: ["ticket them", "ticket themnguoi"],
+    badge: "Thành Viên",
+    description: "Thêm một thành viên khác vào xem và trò chuyện trong ticket hiện tại.",
+    detailed_desc: "Tự động phân quyền đọc, gửi tin nhắn và xem lịch sử chat trong kênh ticket riêng tư cho một người dùng được chỉ định mà không ảnh hưởng tới các thành viên khác.",
+    prefix_syntax: ".ticket add <@member>",
+    slash_syntax: "/ticket add member:@thành_viên",
+    permissions: ["Chủ Ticket hoặc Support Staff"],
+    perm_level: "everyone",
+    conditions: [
+      "Thành viên được thêm phải đang có mặt trong server Discord"
+    ],
+    parameters: [
+      { name: "member", type: "user", required: true, desc: "Thành viên muốn thêm vào ticket" }
+    ],
+    examples: [
+      { cmd: ".ticket add @Alex", desc: "Thêm bạn Alex vào ticket để cùng hỗ trợ" },
+      { cmd: "/ticket add member:@Alex", desc: "Thêm thành viên bằng Slash Command" }
+    ]
+  },
+  {
+    id: "ticket-remove",
+    name: "ticket remove",
+    category: "ticket",
+    category_name: "Hệ Thống Ticket",
+    icon: "➖",
+    type: "hybrid",
+    type_label: "Hybrid (/ và .)",
+    aliases: ["ticket xoa", "ticket xoanguoi", "ticket kickmember"],
+    badge: "Thành Viên",
+    description: "Xóa quyền truy cập và loại bỏ một thành viên khỏi ticket hiện tại.",
+    detailed_desc: "Gỡ bỏ quyền xem và nhắn tin trong kênh ticket của người dùng đã được thêm trước đó. Không thể gỡ bỏ chủ sở hữu của ticket.",
+    prefix_syntax: ".ticket remove <@member>",
+    slash_syntax: "/ticket remove member:@thành_viên",
+    permissions: ["Support Staff hoặc Manage Guild"],
+    perm_level: "mod",
+    conditions: [
+      "Không thể xóa người tạo ban đầu của ticket"
+    ],
+    parameters: [
+      { name: "member", type: "user", required: true, desc: "Thành viên muốn loại bỏ khỏi ticket" }
+    ],
+    examples: [
+      { cmd: ".ticket remove @Alex", desc: "Xóa quyền xem ticket của Alex" }
+    ]
+  },
+  {
+    id: "ticket-transcript",
+    name: "ticket transcript",
+    category: "ticket",
+    category_name: "Hệ Thống Ticket",
+    icon: "📜",
+    type: "hybrid",
+    type_label: "Hybrid (/ và .)",
+    aliases: ["ticket export", "ticket xuat", "ticket lualichsu"],
+    badge: "Tiện Ích",
+    description: "Xuất file HTML giao diện Discord Dark Mode chứa toàn bộ lịch sử tin nhắn của ticket bất kỳ lúc nào.",
+    detailed_desc: "Thu thập tối đa 1000 tin nhắn gần nhất, kèm avatar người chat, timestamp, ảnh đính kèm, tệp tin và Embed, xuất ra một file HTML độc lập có thể mở trực tiếp trên mọi trình duyệt web.",
+    prefix_syntax: ".ticket transcript",
+    slash_syntax: "/ticket transcript",
+    permissions: ["Chủ Ticket hoặc Support Staff"],
+    perm_level: "everyone",
+    conditions: [
+      "Chỉ dùng được trong kênh Ticket đang hoạt động"
+    ],
+    parameters: [],
+    examples: [
+      { cmd: ".ticket transcript", desc: "Lưu lịch sử tin nhắn hiện tại ra file HTML" },
+      { cmd: "/ticket transcript", desc: "Xuất transcript qua Slash Command" }
+    ]
+  },
+  {
+    id: "ticket-rename",
+    name: "ticket rename",
+    category: "ticket",
+    category_name: "Hệ Thống Ticket",
+    icon: "✏️",
+    type: "hybrid",
+    type_label: "Hybrid (/ và .)",
+    aliases: ["ticket doiten"],
+    badge: "Tiện Ích",
+    description: "Đổi tên kênh ticket nhanh chóng để dễ dàng quản lý.",
+    detailed_desc: "Thay đổi tên kênh văn bản ticket hiện tại theo chủ đề cụ thể (VD: đổi thành bug-bot, vip-donate, resolved-user).",
+    prefix_syntax: ".ticket rename <tên mới>",
+    slash_syntax: "/ticket rename new_name:<tên mới>",
+    permissions: ["Support Staff hoặc Manage Guild"],
+    perm_level: "mod",
+    conditions: [
+      "Tên kênh tối đa 50 ký tự, tự động định dạng chữ thường và dấu gạch nối"
+    ],
+    parameters: [
+      { name: "new_name", type: "string", required: true, desc: "Tên mới cho kênh ticket (VD: bug-bot)" }
+    ],
+    examples: [
+      { cmd: ".ticket rename bug-bot-nap-the", desc: "Đổi tên kênh ticket thành bug-bot-nap-the" }
+    ]
+  },
+  {
+    id: "ticket-setcategory",
+    name: "ticket setcategory",
+    category: "ticket",
+    category_name: "Hệ Thống Ticket",
+    icon: "📁",
+    type: "hybrid",
+    type_label: "Hybrid (/ và .)",
+    aliases: ["ticket setcat", "ticket danhmuc"],
+    badge: "Cài Đặt",
+    description: "Cài đặt danh mục cha (Category) để tự động gom toàn bộ các kênh ticket mới tạo vào.",
+    detailed_desc: "Chỉ định một Category trên máy chủ Discord. Mọi kênh ticket do thành viên mở sau đó sẽ tự động được xếp gọn gàng bên dưới danh mục này.",
+    prefix_syntax: ".ticket setcategory <#category>",
+    slash_syntax: "/ticket setcategory category:<danh mục>",
+    permissions: ["Manage Guild (Quản Lý Máy Chủ)"],
+    perm_level: "admin",
+    conditions: [
+      "Phải chọn đúng một CategoryChannel trên máy chủ"
+    ],
+    parameters: [
+      { name: "category", type: "category", required: true, desc: "Danh mục muốn chứa các kênh ticket" }
+    ],
+    examples: [
+      { cmd: ".ticket setcategory 123456789012345678", desc: "Cài đặt category ticket theo ID" },
+      { cmd: "/ticket setcategory category:TICKETS", desc: "Chọn category qua giao diện Slash Command" }
+    ]
+  },
+  {
+    id: "ticket-setrole",
+    name: "ticket setrole",
+    category: "ticket",
+    category_name: "Hệ Thống Ticket",
+    icon: "🛡️",
+    type: "hybrid",
+    type_label: "Hybrid (/ và .)",
+    aliases: ["ticket vaitro", "ticket supportrole"],
+    badge: "Cài Đặt",
+    description: "Cài đặt vai trò nhân viên hỗ trợ (Support Role) có quyền xem, phản hồi và nhận ticket.",
+    detailed_desc: "Gán một vai trò trong server làm vai trò hỗ trợ. Khi có ticket mới, toàn bộ thành viên mang vai trò này sẽ tự động có quyền xem kênh và có thể bấm nút nhận xử lý.",
+    prefix_syntax: ".ticket setrole <@role>",
+    slash_syntax: "/ticket setrole role:<@vai trò>",
+    permissions: ["Manage Guild (Quản Lý Máy Chủ)"],
+    perm_level: "admin",
+    conditions: [
+      "Role được chọn phải tồn tại trên máy chủ"
+    ],
+    parameters: [
+      { name: "role", type: "role", required: true, desc: "Vai trò nhân viên hỗ trợ" }
+    ],
+    examples: [
+      { cmd: ".ticket setrole @Staff", desc: "Đặt vai trò @Staff làm người hỗ trợ ticket" },
+      { cmd: "/ticket setrole role:@Support", desc: "Cài đặt bằng Slash Command" }
+    ]
+  },
+  {
+    id: "ticket-setlog",
+    name: "ticket setlog",
+    category: "ticket",
+    category_name: "Hệ Thống Ticket",
+    icon: "📋",
+    type: "hybrid",
+    type_label: "Hybrid (/ và .)",
+    aliases: ["ticket logchannel", "ticket ticketlog"],
+    badge: "Cài Đặt",
+    description: "Cài đặt kênh văn bản nhận thông báo tạo ticket và lưu trữ file HTML Transcript khi đóng.",
+    detailed_desc: "Tất cả sự kiện mở ticket mới, danh mục lựa chọn, người đóng ticket và file HTML Transcript đầy đủ sẽ tự động được gửi lưu trữ vĩnh viễn vào kênh log này.",
+    prefix_syntax: ".ticket setlog <#kênh>",
+    slash_syntax: "/ticket setlog channel:<#kênh>",
+    permissions: ["Manage Guild (Quản Lý Máy Chủ)"],
+    perm_level: "admin",
+    conditions: [
+      "Bot cần có quyền Gửi tin nhắn và Đính kèm tệp (Attach Files) tại kênh log"
+    ],
+    parameters: [
+      { name: "channel", type: "channel", required: true, desc: "Kênh văn bản lưu trữ log ticket" }
+    ],
+    examples: [
+      { cmd: ".ticket setlog #ticket-logs", desc: "Cài đặt kênh nhận log ticket" }
+    ]
+  },
+  {
+    id: "ticket-config",
+    name: "ticket config",
+    category: "ticket",
+    category_name: "Hệ Thống Ticket",
+    icon: "⚙️",
+    type: "hybrid",
+    type_label: "Hybrid (/ và .)",
+    aliases: ["ticket cauhinh", "ticket status"],
+    badge: "Tra Cứu",
+    description: "Xem toàn bộ thông số thiết lập hệ thống Ticket của server (Category, Role, Log, tổng ticket).",
+    detailed_desc: "Bảng tổng quan hiển thị trạng thái cấu hình hiện tại: Category chứa ticket, vai trò Support Role, kênh Log Transcript, kênh đặt bảng panel và tổng số ticket đã tạo từ trước đến nay.",
+    prefix_syntax: ".ticket config",
+    slash_syntax: "/ticket config",
+    permissions: ["Manage Guild (Quản Lý Máy Chủ)"],
+    perm_level: "admin",
+    conditions: [],
+    parameters: [],
+    examples: [
+      { cmd: ".ticket config", desc: "Xem cấu hình hệ thống ticket của server" }
+    ],
+    embed_preview: {
+      title: "⚙️ Cấu Hình Hệ Thống Ticket — Server Name",
+      description: "Tổng quan thiết lập và các kênh vận hành của hệ thống Phiếu Hỗ Trợ:",
+      color: "#5865F2",
+      fields: [
+        { name: "📁 Danh Mục Chứa Ticket", value: "#TICKETS" },
+        { name: "🛡️ Vai Trò Hỗ Trợ (Staff)", value: "@Support Staff" },
+        { name: "📋 Kênh Nhật Ký (Log & Transcript)", value: "#ticket-logs" },
+        { name: "📌 Kênh Đặt Bảng Điều Khiển", value: "#ho-tro" },
+        { name: "🔢 Tổng Số Ticket Đã Mở", value: "`#42` ticket" },
+        { name: "🟢 Ticket Đang Mở Hiện Tại", value: "`3` ticket" }
+      ]
+    }
+  },
+  {
+    id: "ticket-list",
+    name: "ticket list",
+    category: "ticket",
+    category_name: "Hệ Thống Ticket",
+    icon: "📑",
+    type: "hybrid",
+    type_label: "Hybrid (/ và .)",
+    aliases: ["ticket ds", "ticket danhsach"],
+    badge: "Tra Cứu",
+    description: "Xem danh sách các phiếu hỗ trợ đang mở trên toàn máy chủ kèm người tạo và trạng thái tiếp nhận.",
+    detailed_desc: "Hiển thị danh sách tổng hợp tất cả ticket đang trong trạng thái Mở (Open) hoặc Đã Nhận (Claimed), kèm liên kết nhảy nhanh vào kênh chat để nhân viên hỗ trợ tiện theo dõi.",
+    prefix_syntax: ".ticket list",
+    slash_syntax: "/ticket list",
+    permissions: ["Support Staff hoặc Manage Guild"],
+    perm_level: "mod",
+    conditions: [],
+    parameters: [],
+    examples: [
+      { cmd: ".ticket list", desc: "Xem danh sách các ticket đang mở" }
     ]
   }
 ];
